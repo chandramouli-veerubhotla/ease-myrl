@@ -18,11 +18,7 @@ def random_method(Qt_a: np.ndarray, actions: t.List[int] | None = None, probabil
     if actions is None:
         actions = list(range(0, len(Qt_a)))  # all actions available
     
-    if probabilities is None:
-        probabilities = [1.0/len(actions)] * len(actions)  # equally probable
-    
     assert len(probabilities) == len(actions), f"Expecting probabilites provided should be same as actions available. Expected {len(actions)} but got {len(probabilities)}"
-
     action = np.random.choice(actions, p=probabilities)
     return action, Qt_a[action]
 
@@ -54,8 +50,32 @@ def greedy_method(Qt_a: np.ndarray, actions: t.List[int] | None = None) -> t.Tup
     return action, Qt_a[action]
 
 
-def epsilon_greedy_method():
-    pass
+def epsilon_greedy_method(Qt_a: np.ndarray, actions: t.List[int] | None = None, epsilon: float = 0.1) -> t.Tuple[int, float]:
+    """
+    Trades off between exploration and exploitation.
+
+    Epsilon helps to managing tradeoff between exploration and exploitation.
+    This approach applies probablity `epsilon` for exploitation and `1-epsilon` probability equally distributed for all possible actions.
+
+    :params
+    Qt_a: Numpy Array (1D) - Expected maximum reward computed for each action (index of the list).
+    actions: List[int] (optional) - If provided, only those actions are considered for selection, else, all the actions are considered.
+    epsilon: float (defaults 0.1, range [0-1]) - Applies probability for exploitation.
+
+    :return
+    action (index of the list) [int], expected maximum reward [float] 
+    """
+    if actions is None:
+        actions = list(range(0, len(Qt_a)))  # all actions available
+    
+    probabilities = [(1-epsilon)/len(actions)] * len(actions)
+
+    # Greedy selection
+    action, _ = greedy_method(Qt_a, actions=actions)
+    probabilities[action] += epsilon  # increase probability for greedy action with `epsilon` more probability
+
+    # Apply random selection with computed probabilities
+    return random_method(Qt_a, actions=actions, probabilities=probabilities)
 
 
 def ucb_method():
