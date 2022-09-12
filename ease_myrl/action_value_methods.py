@@ -1,9 +1,10 @@
 import typing as t
 import numpy as np
+from .expected_rewards import QtA
 from collections import Counter
 
 
-def random_method(Qt_a: np.ndarray, actions: t.List[int] | None = None, probabilities: t.List[float] | None = None) -> t.Tuple[int, float]:
+def random_method(Qt_a: QtA, actions: t.List[int] | None = None, probabilities: t.List[float] | None = None) -> t.Tuple[int, float]:
     """
     Selects an action randomly from the possible actions.
 
@@ -41,7 +42,7 @@ def greedy_method(Qt_a: np.ndarray, actions: t.List[int] | None = None) -> t.Tup
         actions = list(range(0, len(Qt_a)))  # all actions available
     
     # Count and find if maximum expected reward is available for 2 or more actions
-    reward_counter = Counter(Qt_a[actions])
+    reward_counter = Counter(Qt_a.get_estimates(actions))
     action = np.argmax(Qt_a)
 
     if reward_counter[Qt_a[action]] > 1:
